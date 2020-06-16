@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Exception\ConfigurationException;
+
 require_once('View.php');
+require_once('exceptions/ConfigurationException.php');
+
 
 class Controller
 {
@@ -12,18 +16,21 @@ class Controller
     private static array $configuration;
     private array $request;
     private View $view;
-
-
-    public function __construct(array $request)
-    {
-        new Database(self::$configuration['db']);
-        $this->request = $request;
-        $this->view = new View();
-    }
+    private Database $db;
 
     public static function initConfiguration(array $configuration): void
     {
         self::$configuration = $configuration;
+    }
+
+    public function __construct(array $request)
+    {
+        if (empty(self::$configuration['db'])) {
+            throw new ConfigurationException('Configuration error!');
+        }
+        $this->db = new Database(self::$configuration['db']);
+        $this->request = $request;
+        $this->view = new View();
     }
 
     public function run(): void
@@ -34,20 +41,25 @@ class Controller
             case 'newnote':
                 $page = 'newnote';
 
-                $created = false;
-                if (!empty($this->getRequestPost())) {
-                    $created = true;
-                    $viewParams = [
-                        'title' => $this->getRequestPost()['title'],
-                        'content' => $this->getRequestPost()['content']
+                $data = $this->getRequestPost();
+
+                if (!empty($data)) {
+
+                    $noteData = [
+                        'title' => $data['title'],
+                        'content' => $data['content']
                     ];
+
+                    $this->db->createNote($noteData);
+                    header('Location: /?before=created');
+
                 }
-                $viewParams['created'] = $created;
                 break;
             case 'list':
                 $page = 'list';
-                $viewParams['displayList'] = 'Tutaj jest lista notatek';
-                break;
+                $notes = $this->db->getNote();
+                $data = $this->getRequestGet();
+                $viewParams['before'] = $data['before'] ?? null;
 
         }
         $this->view->render($page, $viewParams);
