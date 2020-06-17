@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\Exception\ConfigurationException;
+use App\Exception\NotFoundException;
 
 require_once('View.php');
 require_once('exceptions/ConfigurationException.php');
@@ -35,8 +36,6 @@ class Controller
 
     public function run(): void
     {
-        $viewParams = [];
-
         switch ($this->getAction()) {
             case 'newnote':
                 $page = 'newnote';
@@ -55,14 +54,42 @@ class Controller
 
                 }
                 break;
-            case 'list':
+
+            case 'show':
+                $page = 'show';
+                $get = $this->getRequestGet();
+                $id = (int)$get['id'];
+
+                try {
+                    $note = $this->db->getNote($id);
+                } catch (NotFoundException $e) {
+                    header('Location: /?error=notfound');
+                }
+
+                $viewParams = [
+                    'note' => [
+                        'ID' => $note['ID'],
+                        'title' => $note['title'],
+                        'content' => $note['content'],
+                        'created' => $note['created']
+                    ]
+                ];
+                break;
+
+            default:
                 $page = 'list';
-                $notes = $this->db->getNote();
+                $notes = $this->db->getNotes();
                 $data = $this->getRequestGet();
-                $viewParams['before'] = $data['before'] ?? null;
+                $viewParams = [
+                    'notes' => $notes,
+                    'before' => $data['before'] ?? null,
+                    'error' => $data['error'] ?? null
+                ];
+                break;
 
         }
-        $this->view->render($page, $viewParams);
+        $this->view->render($page, $viewParams ?? []);
+
     }
 
     private function getRequestGet(): array

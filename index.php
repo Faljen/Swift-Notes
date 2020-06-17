@@ -30,5 +30,6 @@ try {
     echo '<h1 style="text-align: center">ERROR!</h1>';
     echo '<h1 style="text-align: center">' . $e->getMessage() . '</h1>';
 } catch (Throwable $e) {
+    echo $e;
     echo '<h1 style="text-align: center">Unknown error!</h1>';
 }

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App;
 
 require_once('src/exceptions/DatabaseException.php');
+require_once('src/exceptions/NotFoundException.php');
 
 use App\Exception\ConfigurationException;
 use App\Exception\DatabaseException;
+use App\Exception\NotFoundException;
 use PDO;
 use PDOException;
 use Throwable;
@@ -29,11 +31,32 @@ class Database
         }
     }
 
-    public function getNote(): array
+    public function getNote(int $id): array
     {
-        $query = "SELECT id, title, created FROM notes";
-        $result = $this->connection->query($query);
-        return $result->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $query = "SELECT * FROM notes WHERE id = $id";
+            $result = $this->connection->query($query);
+            $note = $result->fetch(PDO::FETCH_ASSOC);
+
+        } catch (Throwable $e) {
+            throw new DatabaseException('Error! Failed to fetch a note!');
+        }
+
+        if (!$note) {
+            throw new NotFoundException("Note doesn't exist");
+        }
+        return $note;
+    }
+
+    public function getNotes(): array
+    {
+        try {
+            $query = "SELECT id, title, created FROM notes";
+            $result = $this->connection->query($query);
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            throw new DatabaseException('Error! Failed to fetch a notes!');
+        }
     }
 
     public function createNote($data): void
