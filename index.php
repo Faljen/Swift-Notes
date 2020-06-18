@@ -8,7 +8,7 @@ use App\Exception\ConfigurationException;
 use Throwable;
 
 require_once('src/utils/debug.php');
-require_once('src/Controller.php');
+require_once('src/NoteController.php');
 require_once('src/Database.php');
 require_once('src/Request.php');
 $dbconf = require_once('config/config.php');
@@ -18,8 +18,8 @@ $request = new Request($_GET, $_POST);
 
 try {
 
-    Controller::initConfiguration($dbconf);
-    (new Controller($request))->run();
+    AbstractController::initConfiguration($dbconf);
+    (new NoteController($request))->run();
 
 } catch (ConfigurationException $e) {
     echo '<h1 style="text-align: center">ERROR!</h1>';
