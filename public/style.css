@@ -51,6 +51,46 @@ form label {
 }
 
 
+form input[type=text],
+form input[type=date],
+form input[type=datetime],
+form input[type=number],
+form input[type=search],
+form input[type=time],
+form input[type=url],
+form input[type=email],
+textarea,
+select {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    border: 1px solid #BEBEBE;
+    padding: 7px;
+    margin: 0px;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+    outline: none;
+}
+
+form input[type=text]:focus,
+form input[type=date]:focus,
+form input[type=datetime]:focus,
+form input[type=number]:focus,
+form input[type=search]:focus,
+form input[type=time]:focus,
+form input[type=url]:focus,
+form input[type=email]:focus,
+form textarea:focus,
+form select:focus {
+    -moz-box-shadow: 0 0 8px #88D5E9;
+    -webkit-box-shadow: 0 0 8px #88D5E9;
+    box-shadow: 0 0 8px #88D5E9;
+    border: 1px solid #88D5E9;
+}
+
+
 form .field-long {
     width: 100%;
 }
@@ -204,6 +244,72 @@ td {
     color: #222;
 }
 
+tr > td:nth-child(1) {
+    width: 50px;
+
+}
+
+tr > th:nth-child(1) {
+    width: 50px;
+
+}
+
+tr > td:nth-child(2) {
+    width: 50%;
+    text-align: left;
+}
+
+tr > th:nth-child(2) {
+    width: 50%;
+}
+
+tr > td:nth-child(3) {
+    font-style: italic;
+}
+
+.error {
+    /* margin: 0 10px 25px 10px; */
+    /* margin-top:0; */
+    text-align: center;
+    font-weight: 700;
+    color: #ff0000;
+}
+
+.message {
+    /* margin: 0 25px 10px 25px; */
+    /* margin-top:0; */
+    text-align: center;
+    font-weight: 700;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+}
+
+.pagination {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: auto;
+    align-content: center
+}
+
+.pagination li {
+    flex: 0 0 auto;
+    margin: 10px;
+}
+
+.pagination li button {
+    cursor: pointer;
+}
+
+.settings-form label {
+    display: inline-block;
+}
+
 .error {
     /* margin: 0 10px 25px 10px; */
     /* margin-top:0; */
@@ -238,4 +344,48 @@ button {
 button:hover {
     background-color: #4691A4;
 }
+
+.showButton {
+    position: relative;
+    left: 50%
+}
+
+form.note-form li label {
+    font-size: 18px;
+}
+
+form.note-form input,
+form.note-form textarea {
+    font-size: 16px;
+}
+
+.delete,
+.show {
+    padding: 10px;
+    background-color: white;
+    color: #222;
+}
+
+.delete ul,
+.show ul {
+    list-style: none;
+}
+
+.delete ul li,
+.show ul li {
+    margin-top: 10px;
+}
+
+.delete button,
+.show button {
+    padding: 8px 12px;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+
+
 

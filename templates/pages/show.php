@@ -7,6 +7,6 @@
         <li>Created : <?php echo htmlentities($note['created']) ?></li>
     </ul>
     <a href="/">
-        <button>Back</button>
+        <button class="showButton">Back</button>
     </a>
 </div>

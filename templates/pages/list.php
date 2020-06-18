@@ -18,6 +18,10 @@
                 switch ($params['error']) {
                     case 'notfound':
                         echo 'A note with this ID doesn\'t exist';
+                        break;
+                    case 'invalidid':
+                        echo 'Invalid ID note';
+                        break;
                 }
             }
             ?>
@@ -46,7 +50,9 @@
                         <td><?php echo htmlentities($param['created']) ?></td>
                         <td>
                             <button>
-                                <a href="/?action=show&id=<?php echo $param['id'] ?>">Show</a>
+                                <a href="/?action=show&id=<?php echo $param['id'] ?>">
+                                    Show
+                                </a>
                             </button>
                         </td>
                     </tr>

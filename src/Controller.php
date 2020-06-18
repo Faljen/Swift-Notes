@@ -8,14 +8,14 @@ use App\Exception\NotFoundException;
 
 require_once('View.php');
 require_once('exceptions/ConfigurationException.php');
+require_once('Request.php');
 
 
 class Controller
 {
     private const DEFAULT_ACTION = 'list';
-
     private static array $configuration;
-    private array $request;
+    private Request $request;
     private View $view;
     private Database $db;
 
@@ -24,7 +24,7 @@ class Controller
         self::$configuration = $configuration;
     }
 
-    public function __construct(array $request)
+    public function __construct(Request $request)
     {
         if (empty(self::$configuration['db'])) {
             throw new ConfigurationException('Configuration error!');
@@ -40,15 +40,12 @@ class Controller
             case 'newnote':
                 $page = 'newnote';
 
-                $data = $this->getRequestPost();
-
-                if (!empty($data)) {
+                if ($this->request->hasPost()) {
 
                     $noteData = [
-                        'title' => $data['title'],
-                        'content' => $data['content']
+                        'title' => $this->request->getPost('title'),
+                        'content' => $this->request->getPost('content')
                     ];
-
                     $this->db->createNote($noteData);
                     header('Location: /?before=created');
 
@@ -57,13 +54,19 @@ class Controller
 
             case 'show':
                 $page = 'show';
-                $get = $this->getRequestGet();
-                $id = (int)$get['id'];
+
+                $id = (int)($this->request->getGet('id'));
+
+                if (!$id) {
+                    header('Location: /?error=invalidid');
+                    exit;
+                }
 
                 try {
                     $note = $this->db->getNote($id);
                 } catch (NotFoundException $e) {
                     header('Location: /?error=notfound');
+                    exit;
                 }
 
                 $viewParams = [
@@ -79,11 +82,10 @@ class Controller
             default:
                 $page = 'list';
                 $notes = $this->db->getNotes();
-                $data = $this->getRequestGet();
                 $viewParams = [
                     'notes' => $notes,
-                    'before' => $data['before'] ?? null,
-                    'error' => $data['error'] ?? null
+                    'before' => $this->request->getGet('before'),
+                    'error' => $this->request->getGet('error')
                 ];
                 break;
 
@@ -92,20 +94,10 @@ class Controller
 
     }
 
-    private function getRequestGet(): array
-    {
-        return $this->request['get'] ?? [];
-    }
-
-    private function getRequestPost(): array
-    {
-        return $this->request['post'] ?? [];
-    }
 
     private function getAction(): string
     {
-        $get = $this->getRequestGet();
-        return $get['action'] ?? self::DEFAULT_ACTION;
+        return $this->request->getGet('action', self::DEFAULT_ACTION);
     }
 
 }
