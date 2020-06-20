@@ -59,10 +59,27 @@ class Database
         }
     }
 
-    public function getNotes(): array
+    public function deleteNote(int $id): void
     {
         try {
-            $query = "SELECT id, title, created FROM notes";
+            $query = "DELETE from notes WHERE ID=$id";
+            $this->connection->exec($query);
+        } catch (Throwable $e) {
+            throw new DatabaseException('Failed to delete note');
+        }
+    }
+
+    public function getNotes($sortBy, $order): array
+    {
+        if (!in_array($sortBy, ['title', 'created'])) {
+            $sortBy = 'created';
+        }
+        if (!in_array($order, ['asc', 'desc'])) {
+            $sortBy = 'desc';
+        }
+
+        try {
+            $query = "SELECT id, title, created FROM notes ORDER BY $sortBy $order";
             $result = $this->connection->query($query);
             return $result->fetchAll(PDO::FETCH_ASSOC);
         } catch (Throwable $e) {

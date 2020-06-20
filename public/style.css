@@ -108,7 +108,7 @@ form input[type=button] {
     font-size: 18px;
     text-transform: uppercase;
     padding: 12px 40px;
- 
+
 }
 
 form input[type=submit]:hover,
@@ -349,6 +349,18 @@ button:hover {
 .showButton {
     position: relative;
     left: 50%
+}
+
+.deleteButton {
+    position: relative;
+    left: 50%;
+    background-color: indianred;
+}
+
+.deleteButton:hover {
+    position: relative;
+    left: 50%;
+    background-color: red;
 }
 
 form.note-form li label {

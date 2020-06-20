@@ -30,31 +30,24 @@ class NoteController extends AbstractController
     public function show(): void
     {
         $page = 'show';
-        $id = (int)($this->request->getGet('id'));
-
-        if (!$id) {
-            header('Location: /?error=invalidid');
-            exit;
-        }
-
-        try {
-            $note = $this->db->getNote($id);
-        } catch (NotFoundException $e) {
-            header('Location: /?error=notfound');
-            exit;
-        }
+        $note = $this->getNoteParams();
         $this->view->render($page, ['note' => $note]);
     }
 
     public function list(): void
     {
         $page = 'list';
-        $notes = $this->db->getNotes();
+
+        $sortBy = $this->request->getGet('sortBy', 'created');
+        $order = $this->request->getGet('sortOrder', 'desc');
+
+        $notes = $this->db->getNotes($sortBy, $order);
 
         $this->view->render($page, [
                 'notes' => $notes,
                 'before' => $this->request->getGet('before'),
-                'error' => $this->request->getGet('error')
+                'error' => $this->request->getGet('error'),
+                'sort' => ['sortBy' => $sortBy, 'order' => $order]
             ]
         );
     }
@@ -74,6 +67,28 @@ class NoteController extends AbstractController
             exit;
         }
 
+        $note = $this->getNoteParams();
+        $this->view->render($page, ['note' => $note, 'before' => 'updated']);
+    }
+
+    public function delete(): void
+    {
+        $page = 'delete';
+
+        if ($this->request->isPost()) {
+            $id = (int)$this->request->getPost('id');
+
+            $this->db->deleteNote($id);
+            header('Location: /?before=deleted');
+            exit;
+        }
+        $note = $this->getNoteParams();
+
+        $this->view->render($page, ['note' => $note, 'before' => 'deleted']);
+    }
+
+    private function getNoteParams(): array
+    {
         $id = (int)$this->request->getGet('id');
         if (!$id) {
             header('Location: /?error=invalidid');
@@ -86,11 +101,6 @@ class NoteController extends AbstractController
             header('Location: /?error=notfound');
             exit;
         }
-        $this->view->render($page, ['note' => $note, 'before' => 'updated']);
-    }
-
-    public function delete(): void
-    {
-        exit('delete');
+        return $note;
     }
 }
