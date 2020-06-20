@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App;
-
-require_once('View.php');
-require_once('exceptions/ConfigurationException.php');
-require_once('Request.php');
+namespace App\Controller;
 
 use App\Exception\ConfigurationException;
+use App\Request;
+use App\Database;
+use App\View;
 
 class AbstractController
 {
@@ -42,6 +41,14 @@ class AbstractController
 
             case 'show':
                 $this->show();
+                break;
+
+            case 'edit':
+                $this->edit();
+                break;
+
+            case 'delete':
+                $this->delete();
                 break;
 
             default:

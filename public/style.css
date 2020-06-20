@@ -108,6 +108,7 @@ form input[type=button] {
     font-size: 18px;
     text-transform: uppercase;
     padding: 12px 40px;
+ 
 }
 
 form input[type=submit]:hover,
@@ -342,7 +343,7 @@ button {
 }
 
 button:hover {
-    background-color: #4691A4;
+    background-color: lightskyblue;
 }
 
 .showButton {

@@ -1,18 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace App;
-
+namespace App\Controller;
 
 use App\Exception\NotFoundException;
-
-require_once('AbstractController.php');
 
 
 class NoteController extends AbstractController
 {
 
-    public function newNote()
+    public function newNote(): void
     {
         $page = 'newnote';
 
@@ -30,7 +27,7 @@ class NoteController extends AbstractController
 
     }
 
-    public function show()
+    public function show(): void
     {
         $page = 'show';
         $id = (int)($this->request->getGet('id'));
@@ -49,7 +46,7 @@ class NoteController extends AbstractController
         $this->view->render($page, ['note' => $note]);
     }
 
-    public function list()
+    public function list(): void
     {
         $page = 'list';
         $notes = $this->db->getNotes();
@@ -62,5 +59,38 @@ class NoteController extends AbstractController
         );
     }
 
+    public function edit(): void
+    {
+        $page = 'edit';
 
+        if ($this->request->isPost()) {
+            $id = (int)$this->request->getPost('id');
+            $noteData = [
+                'title' => $this->request->getPost('title'),
+                'content' => $this->request->getPost('content')
+            ];
+            $this->db->editNote($noteData, $id);
+            header('Location: /?before=updated');
+            exit;
+        }
+
+        $id = (int)$this->request->getGet('id');
+        if (!$id) {
+            header('Location: /?error=invalidid');
+            exit;
+        }
+
+        try {
+            $note = $this->db->getNote($id);
+        } catch (NotFoundException $e) {
+            header('Location: /?error=notfound');
+            exit;
+        }
+        $this->view->render($page, ['note' => $note, 'before' => 'updated']);
+    }
+
+    public function delete(): void
+    {
+        exit('delete');
+    }
 }

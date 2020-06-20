@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App;
 
-require_once('src/exceptions/DatabaseException.php');
-require_once('src/exceptions/NotFoundException.php');
 
 use App\Exception\ConfigurationException;
 use App\Exception\DatabaseException;
@@ -46,6 +44,19 @@ class Database
             throw new NotFoundException("Note doesn't exist");
         }
         return $note;
+    }
+
+    public function editNote(array $noteData, int $id): void
+    {
+        try {
+            $newTitle = $this->connection->quote($noteData['title']);
+            $newContent = $this->connection->quote($noteData['content']);
+            $query = "UPDATE notes SET title=$newTitle, content=$newContent WHERE id=$id";
+            $this->connection->query($query);
+
+        } catch (Throwable $e) {
+            throw new DatabaseException('Some error, when edit note! Please contact with admin');
+        }
     }
 
     public function getNotes(): array

@@ -7,6 +7,8 @@
                 switch ($params['before']) {
                     case 'created':
                         echo 'Your note has been added';
+                    case 'updated':
+                        echo 'Your note has been updated';
                 }
             }
             ?>
@@ -46,12 +48,17 @@
                 <?php foreach ($params['notes'] ?? [] as $param): ?>
                     <tr>
                         <td><?php echo $param['id'] ?></td>
-                        <td><?php echo htmlentities($param['title']) ?></td>
-                        <td><?php echo htmlentities($param['created']) ?></td>
+                        <td><?php echo $param['title'] ?></td>
+                        <td><?php echo $param['created'] ?></td>
                         <td>
                             <button>
                                 <a href="/?action=show&id=<?php echo $param['id'] ?>">
                                     Show
+                                </a>
+                            </button>
+                            <button>
+                                <a href="/?action=delete&id=<?php echo $param['id'] ?>">
+                                    Delete
                                 </a>
                             </button>
                         </td>
