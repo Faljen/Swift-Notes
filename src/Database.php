@@ -69,7 +69,20 @@ class Database
         }
     }
 
-    public function getNotes($sortBy, $order): array
+    public function getCount(): int
+    {
+        try {
+            $query = "SELECT count(*) AS countOfNotes FROM notes";
+            $result = $this->connection->query($query);
+            $result = $result->fetch(PDO::FETCH_ASSOC);
+            $result = (int)$result['countOfNotes'];
+            return $result;
+        } catch (Throwable $e) {
+            throw new DatabaseException('Error! Failed to fetch a count of notes!');
+        }
+    }
+
+    public function getNotes($sortBy, $order, $pageSize, $pageNumber): array
     {
         if (!in_array($sortBy, ['title', 'created'])) {
             $sortBy = 'created';
@@ -77,9 +90,19 @@ class Database
         if (!in_array($order, ['asc', 'desc'])) {
             $sortBy = 'desc';
         }
+        //to fix
+        if ($pageNumber < 1) {
+            $pageNumber = 1;
+        }
+        if ($pageNumber > $pageSize) {
+            $pageNumber = $pageSize;
+        }
+
+        $limit = $pageSize;
+        $offset = ($pageNumber - 1) * $pageSize;
 
         try {
-            $query = "SELECT id, title, created FROM notes ORDER BY $sortBy $order";
+            $query = "SELECT id, title, created FROM notes ORDER BY $sortBy $order LIMIT $offset,$limit";
             $result = $this->connection->query($query);
             return $result->fetchAll(PDO::FETCH_ASSOC);
         } catch (Throwable $e) {

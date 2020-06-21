@@ -108,6 +108,7 @@ form input[type=button] {
     font-size: 18px;
     text-transform: uppercase;
     padding: 12px 40px;
+    cursor: pointer;
 
 }
 

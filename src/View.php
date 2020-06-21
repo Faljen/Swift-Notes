@@ -9,7 +9,6 @@ class View
     public function render(string $page, array $params = []): void
     {
         $params = $this->entitiesParams($params);
-
         include_once('templates/layout.php');
     }
 
@@ -19,6 +18,8 @@ class View
         foreach ($params as $key => $param) {
             if (is_array($param)) {
                 $entitiesParams[$key] = $this->entitiesParams($param);
+            } else if (is_int($param)) {
+                $entitiesParams[$key] = $param;
             } else if ($param) {
                 $entitiesParams[$key] = htmlentities($param);
             } else {

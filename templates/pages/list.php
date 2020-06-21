@@ -34,33 +34,45 @@
             ?>
         </div>
 
-        <?php if ((count($params['notes'])) > 1): ?>
-            <div>
-                <form class="settings-form" action="/" method="GET">
-                    <?php
-                    $sort = $params['sort'];
-                    $sortBy = $sort['sortBy'] ?? 'created';
-                    $order = $sort['order'] ?? 'desc';
-                    ?>
-                    <div>
-                        <div>Sort by:</div>
-                        <label>date: <input name="sortBy" type="radio" value="created"
-                                <?php echo $sortBy === 'created' ? 'checked' : '' ?> /></label>
-                        <label>title: <input name="sortBy" type="radio" value="title"
-                                <?php echo $sortBy === 'title' ? 'checked' : '' ?> /></label>
-                    </div>
-                    <div>
-                        <div>Order:</div>
-                        <label>descending: <input name="sortOrder" type="radio" value="desc"
-                                <?php echo $order === 'desc' ? 'checked' : '' ?> /></label>
-                        <label>ascending: <input name="sortOrder" type="radio" value="asc"
-                                <?php echo $order === 'asc' ? 'checked' : '' ?> /></label>
-                    </div>
-                    <input type="submit" value="Sort"/>
-                </form>
-            </div>
-        <?php endif; ?>
-
+        <div>
+            <form class="settings-form" action="/" method="GET">
+                <?php
+                $sort = $params['sort'];
+                $sortBy = $sort['sortBy'] ?? 'created';
+                $order = $sort['order'] ?? 'desc';
+                $page = $params['page'];
+                $pageSize = $page['pageSize'];
+                $pageNumber = $page['pageNumber'] ?? 1;
+                $pages = $page['pages'] ?? 1;
+                ?>
+                <div>
+                    <div>Sort by:</div>
+                    <label>date: <input name="sortBy" type="radio" value="created"
+                            <?php echo $sortBy === 'created' ? 'checked' : '' ?> /></label>
+                    <label>title: <input name="sortBy" type="radio" value="title"
+                            <?php echo $sortBy === 'title' ? 'checked' : '' ?> /></label>
+                </div>
+                <div>
+                    <div>Order:</div>
+                    <label>descending: <input name="sortOrder" type="radio" value="desc"
+                            <?php echo $order === 'desc' ? 'checked' : '' ?> /></label>
+                    <label>ascending: <input name="sortOrder" type="radio" value="asc"
+                            <?php echo $order === 'asc' ? 'checked' : '' ?> /></label>
+                </div>
+                <div>
+                    <div>Page Size:</div>
+                    <label>5 <input name="pageSize" type="radio"
+                                    value="5" <?php echo $pageSize === 5 ? 'checked' : '' ?>></label>
+                    <label>10 <input name="pageSize" type="radio"
+                                     value="10" <?php echo $pageSize === 10 ? 'checked' : '' ?>></label>
+                    <label>15 <input name="pageSize" type="radio"
+                                     value="15" <?php echo $pageSize === 15 ? 'checked' : '' ?>></label>
+                    <label>20 <input name="pageSize" type="radio"
+                                     value="20" <?php echo $pageSize === 20 ? 'checked' : '' ?>></label>
+                </div>
+                <input type="submit" style="padding: 8px 14px; font-size: 14px" value="Submit"/>
+            </form>
+        </div>
 
         <div class="tbl-header">
             <table cellpadding="0" cellspacing="0" border="0">
@@ -105,6 +117,32 @@
                 </tbody>
             </table>
         </div>
+
+        <ul class="pagination">
+            <?php if ($pageNumber > 1): ?>
+                <li>
+                    <a href="/?pageNumber=<?php echo $pageNumber - 1 ?>&pageSize=<?php echo $pageSize ?>&sortBy=<?php echo $sortBy ?>&sortOrder=<?php echo $order ?>">
+                        <button> <<</button>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php for ($i = 1;
+                       $i <= $pages;
+                       $i++): ?>
+                <li>
+                    <a href="/?pageNumber=<?php echo $i ?>&pageSize=<?php echo $pageSize ?>&sortBy=<?php echo $sortBy ?>&sortOrder=<?php echo $order ?>">
+                        <button><?php echo $i; ?></button>
+                    </a>
+                </li>
+            <?php endfor; ?>
+            <?php if ($pageNumber < $pages): ?>
+                <li>
+                    <a href="/?pageNumber=<?php echo $pageNumber + 1 ?>&pageSize=<?php echo $pageSize ?>&sortBy=<?php echo $sortBy ?>&sortOrder=<?php echo $order ?>">
+                        <button> >></button>
+                    </a>
+                </li>
+            <?php endif; ?>
+        </ul>
 
     </section>
 </div>
