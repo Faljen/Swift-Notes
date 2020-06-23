@@ -2,30 +2,61 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Model;
 
-
-use App\Exception\ConfigurationException;
 use App\Exception\DatabaseException;
 use App\Exception\NotFoundException;
 use PDO;
-use PDOException;
 use Throwable;
 
 
-class Database
+class NoteModel extends AbstractModel implements ModelInterface
 {
-    private PDO $connection;
 
-    public function __construct($config)
+    public function search($sortBy, $order, $pageSize, $pageNumber, $searchingText): array
     {
+        if (!in_array($sortBy, ['title', 'created'])) {
+            $sortBy = 'created';
+        }
+        if (!in_array($order, ['asc', 'desc'])) {
+            $sortBy = 'desc';
+        }
+        //to fix
+        if ($pageNumber < 1) {
+            $pageNumber = 1;
+        }
+        if ($pageNumber > $pageSize) {
+            $pageNumber = $pageSize;
+        }
+
+        $limit = $pageSize;
+        $offset = ($pageNumber - 1) * $pageSize;
+
+        //note that we don't use the index here
+        //it's acceptable because we won't have a huge amount of data in the database
+        $searchingText = $this->connection->quote('%' . $searchingText . '%', PDO::PARAM_STR);
+
         try {
+            $query = "SELECT id, title, created FROM notes WHERE title LIKE ($searchingText) ORDER BY $sortBy $order LIMIT $offset,$limit";
+            $result = $this->connection->query($query);
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            throw new DatabaseException('Error! Failed to search notes!');
+        }
+    }
 
-            $this->validateConfig($config);
-            $this->initializeConnection($config);
+    public function searchCount($searchingText): int
+    {
+        $searchingText = $this->connection->quote('%' . $searchingText . '%', PDO::PARAM_STR);
 
-        } catch (PDOException $e) {
-            throw new DatabaseException('Some database error has occurred! Try again later...');
+        try {
+            $query = "SELECT count(*) AS countOfNotes FROM notes WHERE title LIKE ($searchingText)";
+            $result = $this->connection->query($query);
+            $result = $result->fetch(PDO::FETCH_ASSOC);
+            $result = (int)$result['countOfNotes'];
+            return $result;
+        } catch (Throwable $e) {
+            throw new DatabaseException('Error! Failed to fetch a count of searching notes!');
         }
     }
 
@@ -46,7 +77,7 @@ class Database
         return $note;
     }
 
-    public function editNote(array $noteData, int $id): void
+    public function edit(array $noteData, int $id): void
     {
         try {
             $newTitle = $this->connection->quote($noteData['title']);
@@ -59,7 +90,7 @@ class Database
         }
     }
 
-    public function deleteNote(int $id): void
+    public function delete(int $id): void
     {
         try {
             $query = "DELETE from notes WHERE ID=$id";
@@ -110,7 +141,7 @@ class Database
         }
     }
 
-    public function createNote($data): void
+    public function create($data): void
     {
         try {
             if ((empty($data['title']) || (empty($data['content'])))) {
@@ -139,19 +170,6 @@ class Database
 
         } catch (Throwable $e) {
             throw new DatabaseException("There are some error - note not saved. Please contact with admin.");
-        }
-    }
-
-    private function initializeConnection($config): void
-    {
-        $dsn = 'mysql:dbname=' . $config['name'] . ';host=' . $config['host'] . '';
-        $this->connection = new PDO($dsn, $config['username'], $config['password'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    }
-
-    private function validateConfig(array $config): void
-    {
-        if (empty($config['name']) || empty($config['host']) || empty($config['username']) || empty($config['password'])) {
-            throw new ConfigurationException('No database connection!');
         }
     }
 

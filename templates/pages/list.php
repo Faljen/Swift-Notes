@@ -36,6 +36,9 @@
 
         <div>
             <form class="settings-form" action="/" method="GET">
+                <div>
+                    <label>Search: <input type="text" name="searchingText"></label>
+                </div>
                 <?php
                 $sort = $params['sort'];
                 $sortBy = $sort['sortBy'] ?? 'created';
@@ -44,6 +47,7 @@
                 $pageSize = $page['pageSize'];
                 $pageNumber = $page['pageNumber'] ?? 1;
                 $pages = $page['pages'] ?? 1;
+                $searchingText = $params['searchingText'] ?? null;
                 ?>
                 <div>
                     <div>Sort by:</div>
@@ -119,9 +123,10 @@
         </div>
 
         <ul class="pagination">
+            <?php $url = "&pageSize=$pageSize&searchingText=$searchingText&sortBy=$sortBy&sortOrder=$order" ?>
             <?php if ($pageNumber > 1): ?>
                 <li>
-                    <a href="/?pageNumber=<?php echo $pageNumber - 1 ?>&pageSize=<?php echo $pageSize ?>&sortBy=<?php echo $sortBy ?>&sortOrder=<?php echo $order ?>">
+                    <a href="/?pageNumber=<?php echo $pageNumber - 1 . $url ?>">
                         <button> <<</button>
                     </a>
                 </li>
@@ -130,14 +135,14 @@
                        $i <= $pages;
                        $i++): ?>
                 <li>
-                    <a href="/?pageNumber=<?php echo $i ?>&pageSize=<?php echo $pageSize ?>&sortBy=<?php echo $sortBy ?>&sortOrder=<?php echo $order ?>">
+                    <a href="/?pageNumber=<?php echo $i . $url ?>">
                         <button><?php echo $i; ?></button>
                     </a>
                 </li>
             <?php endfor; ?>
             <?php if ($pageNumber < $pages): ?>
                 <li>
-                    <a href="/?pageNumber=<?php echo $pageNumber + 1 ?>&pageSize=<?php echo $pageSize ?>&sortBy=<?php echo $sortBy ?>&sortOrder=<?php echo $order ?>">
+                    <a href="/?pageNumber=<?php echo $pageNumber + 1 . $url ?>">
                         <button> >></button>
                     </a>
                 </li>

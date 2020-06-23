@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Exception\ConfigurationException;
+use App\Exception\DatabaseException;
+use App\Exception\NotFoundException;
 use App\Request;
-use App\Database;
+use App\Model\NoteModel;
 use App\View;
 
 class AbstractController
@@ -15,7 +17,7 @@ class AbstractController
     private static array $configuration;
     protected Request $request;
     protected View $view;
-    protected Database $db;
+    protected NoteModel $noteModel;
 
     public static function initConfiguration(array $configuration): void
     {
@@ -27,36 +29,45 @@ class AbstractController
         if (empty(self::$configuration['db'])) {
             throw new ConfigurationException('Configuration error!');
         }
-        $this->db = new Database(self::$configuration['db']);
+        $this->noteModel = new NoteModel(self::$configuration['db']);
         $this->request = $request;
         $this->view = new View();
     }
 
     public function run(): void
     {
-        switch ($this->getAction()) {
-            case 'newnote':
-                $this->newNote();
-                break;
+        try {
+            switch ($this->getAction()) {
+                case 'newnote':
+                    $this->newNote();
+                    break;
 
-            case 'show':
-                $this->show();
-                break;
+                case 'show':
+                    $this->show();
+                    break;
 
-            case 'edit':
-                $this->edit();
-                break;
+                case 'edit':
+                    $this->edit();
+                    break;
 
-            case 'delete':
-                $this->delete();
-                break;
+                case 'delete':
+                    $this->delete();
+                    break;
 
-            default:
-                $this->list();
-                break;
-
+                default:
+                    $this->list();
+                    break;
+            }
+        } catch (DatabaseException $e) {
+            $this->view->render(
+                'error',
+                [
+                    'message' => $e->getMessage()
+                ]
+            );
+        } catch (NotFoundException $e) {
+            header('Location: /?error=notfound');
         }
-
     }
 
     private function getAction(): string

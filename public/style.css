@@ -143,7 +143,7 @@ form > div:first-child > label:first-child > input {
     margin-left: 14px;
     font-family: montserrat;
     outline: none;
-    font-size: 22px;
+    font-size: 13px;
 }
 
 form > div:first-child > label:first-child > input:focus {
@@ -399,6 +399,7 @@ a {
     text-decoration: none;
     color: white;
 }
+
 
 
 

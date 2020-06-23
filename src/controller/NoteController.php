@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Exception\NotFoundException;
-
-
 class NoteController extends AbstractController
 {
     private const PAGE_SIZE = 10;
@@ -20,7 +17,7 @@ class NoteController extends AbstractController
                 'title' => $this->request->getPost('title'),
                 'content' => $this->request->getPost('content')
             ];
-            $this->db->createNote($noteData);
+            $this->noteModel->create($noteData);
             header('Location: /?before=created');
 
         }
@@ -45,8 +42,16 @@ class NoteController extends AbstractController
         $sortBy = $this->request->getGet('sortBy', 'created');
         $order = $this->request->getGet('sortOrder', 'desc');
 
-        $notes = $this->db->getNotes($sortBy, $order, $pageSize, $pageNumber);
-        $notesCount = $this->db->getCount();
+        $searchingText = $this->request->getGet('searchingText', null);
+
+        if ($searchingText) {
+            $notes = $this->noteModel->search($sortBy, $order, $pageSize, $pageNumber, $searchingText);
+            $notesCount = $this->noteModel->searchCount($searchingText);
+
+        } else {
+            $notes = $this->noteModel->getNotes($sortBy, $order, $pageSize, $pageNumber);
+            $notesCount = $this->noteModel->getCount();
+        }
 
         if (!in_array($pageSize, [5, 10, 15, 20])) {
             $pageSize = self::PAGE_SIZE;
@@ -57,7 +62,8 @@ class NoteController extends AbstractController
                 'notes' => $notes,
                 'before' => $this->request->getGet('before'),
                 'error' => $this->request->getGet('error'),
-                'sort' => ['sortBy' => $sortBy, 'order' => $order]
+                'sort' => ['sortBy' => $sortBy, 'order' => $order],
+                'searchingText' => $searchingText
             ]
         );
     }
@@ -72,7 +78,7 @@ class NoteController extends AbstractController
                 'title' => $this->request->getPost('title'),
                 'content' => $this->request->getPost('content')
             ];
-            $this->db->editNote($noteData, $id);
+            $this->noteModel->edit($noteData, $id);
             header('Location: /?before=updated');
             exit;
         }
@@ -88,7 +94,7 @@ class NoteController extends AbstractController
         if ($this->request->isPost()) {
             $id = (int)$this->request->getPost('id');
 
-            $this->db->deleteNote($id);
+            $this->noteModel->delete($id);
             header('Location: /?before=deleted');
             exit;
         }
@@ -105,12 +111,7 @@ class NoteController extends AbstractController
             exit;
         }
 
-        try {
-            $note = $this->db->getNote($id);
-        } catch (NotFoundException $e) {
-            header('Location: /?error=notfound');
-            exit;
-        }
-        return $note;
+        return $this->noteModel->getNote($id);
+
     }
 }
